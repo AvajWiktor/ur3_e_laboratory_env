@@ -7,4 +7,5 @@
 # new environment variables
 
 # modified environment variables
-export PWD='/home/wiktor/atest_ur/build'
+export PWD='/home/wiktor/x/build'
+export ROS_PACKAGE_PATH='/home/wiktor/atest_ur/src:/home/wiktor/x/src:/home/wiktor/atest_ur/src:/opt/ros/melodic/share'

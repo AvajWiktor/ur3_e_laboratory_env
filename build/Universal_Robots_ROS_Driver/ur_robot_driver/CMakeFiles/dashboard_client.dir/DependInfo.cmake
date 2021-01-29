@@ -20,8 +20,8 @@ set(CMAKE_TARGET_DEFINITIONS_CXX
 # The include file search paths:
 set(CMAKE_CXX_TARGET_INCLUDE_PATH
   "/home/wiktor/atest_ur/src/Universal_Robots_ROS_Driver/ur_robot_driver/include"
-  "/home/wiktor/atest_ur/devel/include"
-  "/home/wiktor/atest_ur/src/Universal_Robots_ROS_Driver/ur_controllers/include"
+  "/home/wiktor/x/devel/include"
+  "/home/wiktor/x/src/Universal_Robots_ROS_Driver/ur_controllers/include"
   "/opt/ros/melodic/include"
   "/opt/ros/melodic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp"
   "/opt/ros/melodic/share/orocos_kdl/cmake/../../../include"

@@ -6,5 +6,5 @@ CXX_FLAGS = -O2 -g -DNDEBUG   -std=c++11 -Wall -Wextra -Wno-unused-parameter
 
 CXX_DEFINES = -DROSCONSOLE_BACKEND_LOG4CXX -DROS_BUILD -DROS_BUILD_SHARED_LIBS=1 -DROS_PACKAGE_NAME=\"ur_robot_driver\"
 
-CXX_INCLUDES = -I/home/wiktor/atest_ur/src/Universal_Robots_ROS_Driver/ur_robot_driver/include -I/home/wiktor/atest_ur/devel/include -I/home/wiktor/atest_ur/src/Universal_Robots_ROS_Driver/ur_controllers/include -isystem /opt/ros/melodic/include -I/opt/ros/melodic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp -I/opt/ros/melodic/share/orocos_kdl/cmake/../../../include -I/usr/include/eigen3 
+CXX_INCLUDES = -I/home/wiktor/atest_ur/src/Universal_Robots_ROS_Driver/ur_robot_driver/include -I/home/wiktor/x/devel/include -I/home/wiktor/x/src/Universal_Robots_ROS_Driver/ur_controllers/include -isystem /opt/ros/melodic/include -I/opt/ros/melodic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp -I/opt/ros/melodic/share/orocos_kdl/cmake/../../../include -I/usr/include/eigen3 
 
