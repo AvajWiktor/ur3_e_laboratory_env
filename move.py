@@ -27,12 +27,16 @@ from tf.transformations import euler_from_quaternion
 from tf.transformations import *
 from geometry_msgs.msg import Quaternion
 
+######################################################################################################################
 class Transformator:
 	def __init__(self, m1_t, m2_t, m3_t, m4_t):
 		self.marker_0 = m1_t
 		self.marker_1 = m2_t
 		self.marker_4 = m3_t
 		self.marker_5 = m4_t
+######################################################################################################################
+
+######################################################################################################################
 class Point:
 	def __init__(self,x,y,z,move_group, fill_trans):
 		self.x = x
@@ -43,47 +47,38 @@ class Point:
 		self.fill_trans = fill_trans
 	def goTo(self):
 		global z_orient
-		plan = self.mg.plan_path_to_goal(self.x,self.y,self.z+self.fill_trans[0],z_orient[0],z_orient[1],z_orient[2],z_orient[3])
-		self.mg.execute_plan(plan)
+		self.mg.move_to_point(self.x,self.y,self.z+self.fill_trans[0],
+z_orient[0],z_orient[1],z_orient[2],z_orient[3],self.mg.move_group.get_current_pose().pose.orientation)
 	def fillPoint(self):
 		global z_orient
 		if self.isEmpty:
 			changeState(0, 1)
-			plan = self.mg.plan_path_to_goal(self.x,self.y,self.z+self.fill_trans[1],z_orient[0],z_orient[1],z_orient[2],z_orient[3])
-			self.mg.execute_plan(plan)
+			self.mg.move_to_point(self.x,self.y,self.z+self.fill_trans[1],
+z_orient[0],z_orient[1],z_orient[2],z_orient[3], self.mg.move_group.get_current_pose().pose.orientation)
 			rospy.sleep(1)
 			changeState(0, 0)
-			#system("rosservice call /ur_hardware_interface/set_io \"fun: 1 \npin: 0 \nstate: 1.0\"")
-			
-			#bp = self.mg.move_group.get_current_pose().pose.position
-			#plan = self.mg.plan_path_to_goal(bp.x,bp.y,bp.z+0.07,z_orient[0],z_orient[1],z_orient[2],z_orient[3])
-			#self.mg.execute_plan(plan)
-			plan = self.mg.plan_path_to_goal(self.x,self.y,self.z+self.fill_trans[2],z_orient[0],z_orient[1],z_orient[2],z_orient[3])
-			self.mg.execute_plan(plan)
+			plan = self.mg.move_to_point(self.x,self.y,self.z+self.fill_trans[2],
+z_orient[0],z_orient[1],z_orient[2],z_orient[3],self.mg.move_group.get_current_pose().pose.orientation)
 			self.isEmpty = False
 		else:
 			print("This prob is full")
 	def takeTip(self):
 		global z_orient
 		if self.isEmpty:
-			plan = self.mg.plan_path_to_goal(self.x,self.y,self.z+self.fill_trans[1],z_orient[0],z_orient[1],z_orient[2],z_orient[3])
-			self.mg.execute_plan(plan)
-			#system("rosservice call /ur_hardware_interface/set_io \"fun: 1 \npin: 0 \nstate: 1.0\"")
-			#bp = self.mg.move_group.get_current_pose().pose.position
-			#plan = self.mg.plan_path_to_goal(bp.x,bp.y,bp.z+0.07,z_orient[0],z_orient[1],z_orient[2],z_orient[3])
-			plan = self.mg.plan_path_to_goal(self.x,self.y,self.z+self.fill_trans[2],z_orient[0],z_orient[1],z_orient[2],z_orient[3])
-			self.mg.execute_plan(plan)
+			self.mg.move_to_point(self.x,self.y,self.z+self.fill_trans[1],
+z_orient[0],z_orient[1],z_orient[2],z_orient[3], self.mg.move_group.get_current_pose().pose.orientation)
+ 			self.mg.plan_path_to_goal(self.x,self.y,self.z+self.fill_trans[2],
+z_orient[0],z_orient[1],z_orient[2],z_orient[3], self.mg.move_group.get_current_pose().pose.orientation)
 			self.isEmpty = False
 		else:
 			print("This prob is full")
-def changeState(port, state):
-	string = ("rosservice call /ur_hardware_interface/set_io \"fun: 1 \npin: %d \nstate: %d.0\"" %(port,state))
-	system(string)
+######################################################################################################################
 
+######################################################################################################################
 class MatrixProb:
 	def __init__(self, angle, diameter, size, first_element, move_group,ft):
 		self.angle = angle #angle of aruco marker
-		self.diameter = diameter #diameter of glory hole
+		self.diameter = diameter #diameter of hole
 		self.size = size #size array for example 2x2 -> [2,2]
 		self.first_element = first_element #coordinates of 1st hole
 		self.points_vector = []
@@ -95,7 +90,6 @@ class MatrixProb:
 		self.points_vector.append(Point(start_pos[0],start_pos[1],start_pos[2],move_group,ft))
 		for i in range(self.size[1]):
 			if counter != 0:
-
 				long_trans = getMiniTowerPosition(long_angle, self.diameter)
 				start_pos[0] += long_trans[0]
 				start_pos[1] += long_trans[1]
@@ -103,19 +97,18 @@ class MatrixProb:
 
 			trans = getMiniTowerPosition(self.angle, self.diameter)
 			for i in range(self.size[0]-1):
-			
-			
-
-			
 				if counter%2==0 and counter!=0:
 					multiplicator = 1
 				elif counter%2!=0:
 					multiplicator = -1
+
 				start_pos[0] += multiplicator*trans[0]
 				start_pos[1] += multiplicator*trans[1]
 				self.points_vector.append(Point(start_pos[0],start_pos[1],start_pos[2], move_group,ft))
 			
 			counter+=1
+
+
 	def goToMatrixPoint(self, point_nr):
 		if len(self.points_vector) > 0:
 			print(self.points_vector[point_nr-1].x, self.points_vector[point_nr-1].y, self.points_vector[point_nr-1].z)
@@ -127,7 +120,9 @@ class MatrixProb:
 			self.points_vector[point_nr-1].fillPoint()
 		else:
 			print("Points vector is empty!")
-		
+#########################################################################################################################
+
+	
 	
 matrix_1 = MatrixProb(0, 0, [0,0], [0,0,0], 0,[0,0,0])
 matrix_2 = MatrixProb(0, 0, [0,0], [0,0,0], 0,[0,0,0])
@@ -149,6 +144,10 @@ grasp_goal = [Pose(),Pose(),Pose()]
 markers_ABS_poses = Transformator([0.0285,0.1,0.068],[0,0,0],[0,0,0],[0,0,0])
 z_orient = quaternion_from_euler(0,0.033,0,axes="sxyz")
 
+def changeState(port, state):
+	string = ("rosservice call /ur_hardware_interface/set_io \"fun: 1 \npin: %d \nstate: %d.0\"" %(port,state))
+	system(string)	
+
 def apply_vacuum(self):
 	rospy.init_node("apply_vacum_node") 
 	publisher1 = rospy.Publisher('/ur_hardware_interface/script_command', String, quesize=2)
@@ -168,9 +167,9 @@ def getTowerPosition(angle, a_t):
 	return transform
 
 def getMiniTowerPosition(angle, dist):
-	
 	transform = [dist*cos(angle),dist*sin(angle)]
 	return transform
+
 def add_table():
     REFERENCE_FRAME = '/base_link'
     scene = moveit_commander.PlanningSceneInterface()
@@ -260,7 +259,6 @@ def spiral(move_group,angleToStep, startRadius, stepSize=0.0005,minAngle=0.0, mi
  
 
 def checkPos(m_g,m_nr):
-
 	bp = m_g.move_group.get_current_pose().pose
 	x =  grasp_goal[m_nr].position.x - bp.position.x
 	y = bp.position.y 
@@ -277,7 +275,6 @@ def checkAngle(angle):
 		return False	
 
 def callback0(msg):
-	
 	global grasp_goal
 	grasp_goal[0] = msg.pose
 	
@@ -286,12 +283,10 @@ def callback0(msg):
 	#grasp_goal[4] = t.pose
 	
 def callback1(msg):
-	
 	global grasp_goal
 	grasp_goal[1] = msg.pose
 
 def callback4(msg):
-	
 	global grasp_goal
 	grasp_goal[2] = msg.pose
 	
@@ -303,7 +298,6 @@ def showMarkerPositions():
 		counter+=1
 
 def getMarkerPositions():
-	
  try:
 	#markers_id = [int(x) for x in raw_input("Enter multiple value: ").split(",")]
 	#m1,m2,m3,m4,m5 = markers_id
@@ -330,7 +324,6 @@ def getMarkerPositions():
 	print("smth is not yes")
 
 def startPath(move_group):
-    
     global markers_ABS_poses
     global matrix_1
     global matrix_2
@@ -365,8 +358,6 @@ def startPath(move_group):
     m2_angle = q_o_n_e_2[2] 
     m3_angle = q_o_n_e_3[2] 
  
-    
-    
     tip_tower = getTowerPosition(m1_angle, [t_box_ar_1st_t[0], t_box_ar_1st_t[1]])
     water_box_dojazd = getTowerPosition(m2_angle, [w_box_ar_1st_t[0],w_box_ar_1st_t[1]])
     calibrate_tower = getTowerPosition(m3_angle, [cal_box_ar_1st_t[0],cal_box_ar_1st_t[1]])
@@ -380,7 +371,6 @@ def startPath(move_group):
    
     opt = input("Go to marker id: ")
     while opt != 9:
-
 	if opt == 1:
 
 		z_orient = checkPos(move_group, 1)
@@ -426,16 +416,11 @@ def startPath(move_group):
 		matrix_1.fillMatrixPoint(66)
 		plan = move_group.plan_path_to_goal(grasp_goal[2].position.x+t[0]+calibrate_tower[0], grasp_goal[2].position.y+t[1]+calibrate_tower[1], grasp_goal[2].position.z+t[2]+0.05,z_orient[0],z_orient[1],z_orient[2],z_orient[3])
 		move_group.execute_plan(plan)
-		
-		
 		system("rosservice call /ur_hardware_interface/set_io \"fun: 1 \npin: 1 \nstate: 1.0\"")
 		system("rosservice call /ur_hardware_interface/set_io \"fun: 1 \npin: 1 \nstate: 0.0\"")
 		goHome(move_group)
 		
-		
-		
 	opt = input("Go to marker id: ")
-    
     
     raw_input("enter enter xd")
     #matrixMovement(move_group, (pi+marker1_angle), diameter_1, matrix_1_size, 0.001)
@@ -499,11 +484,8 @@ def choseOption(arg, move_group):
 		global zmienna
 		zmienna = 8
 	
-
 def main():
-  
   try:
-    
     while zmienna != 8:
         move_group = MoveGroupPythonInteface()
     	print "Enter which movement you want to execute: "
